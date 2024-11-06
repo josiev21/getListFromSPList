@@ -4,10 +4,6 @@ import '@pnp/sp/webs';
 import '@pnp/sp/lists';
 import '@pnp/sp/items';
 
-// import {
-//   type IPropertyPaneConfiguration,
-//   PropertyPaneTextField
-// } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { MSGraphClientV3 } from '@microsoft/sp-http';
 
@@ -18,21 +14,19 @@ export interface IGetListWebPartProps {
 //class definition =>type
 interface IWorkdayEmployee {
   Title: string;
-  Leave_Balance: number;
+  Leave_Balance: string;
   Sub_TimeOff: number;
-  Sub_Birthday: number;
-  Inbox_Count: number;
+  Sub_Birthday: string;
+  Inbox_Count: string;
 }
 
 export default class GetListWebPart extends BaseClientSideWebPart<IGetListWebPartProps> {
 
 
   private username: String = "";
-  private jobTitle: String ="";
-  private Sub_Birthday: any = "" ;
-  private Leave_Balance: any = "";
+  private Sub_Birthday: String = "#" ;
+  private Leave_Balance: String = "#";
   private error: String ="";
-  // private id: String = "";
   private employeeId: String ="";
 
   public render(): void {
@@ -82,24 +76,11 @@ export default class GetListWebPart extends BaseClientSideWebPart<IGetListWebPar
   private async getList(employeeId: String) {
     
     const sp = spfi().using(SPFx(this.context))
-    // const profileCardDataList = sp.web.lists.getByTitle('ProfileCardsData');
     const employeeIdNumb: IWorkdayEmployee[] = await sp.web.lists.getByTitle('ProfileCardsData').items.top(1).filter(`Title eq '${employeeId}'`)();
     this.Leave_Balance = employeeIdNumb[0].Leave_Balance;
     this.Sub_Birthday = employeeIdNumb[0].Sub_Birthday;
     console.log(employeeIdNumb[0].Leave_Balance)
     this.render()
-    // console.log(employeeIdNumb[0].Leave_Balance);
-    // // @ts-ignore
-    // for await (const items of profileCardDataList.items.top(1000)) {
-
-    //   console.log("Items length " + items.length + ", items size " + items.size + ". First one is " + items[0]);
-
-    //   items.forEach((employee: IWorkdayEmployee) => {
-    //     console.log(employee);
-    //   });
-
-    // }
-
     
   }
 
@@ -107,47 +88,6 @@ export default class GetListWebPart extends BaseClientSideWebPart<IGetListWebPar
 
   protected async onInit(): Promise<void> {
     await super.onInit()   
-    // username and job title
-    this.context.msGraphClientFactory
-    .getClient('3')
-    .then((client: MSGraphClientV3) => {
-        // eslint-disable-next-line no-void
-      void client
-          .api('/me')
-          .get((error: { message: String; }, response: any) => {
-            if (error) {
-              this.error = error.message;
-            } else {
-                this.username = response.displayName;            
-                this.jobTitle = response.jobTitle;
-                console.log(this.jobTitle);
-                // this.id = response.id
-              }
-
-            this.render()
-          });
-    })
-    .catch((error) => {
-      this.error = error.message
-      this.render()
-    });
-
-    // profile picture
-    this.context.msGraphClientFactory
-    .getClient('3')
-    .then((client: MSGraphClientV3) => {
-        // eslint-disable-next-line no-void
-      void client
-          .api('/me/photo/$value')
-          .get((error: any, response: any) => {
-            // this.profpicURL = URL.createObjectURL(response)
-            this.render()
-          });
-    })
-    .catch((error) => {
-      this.error = error.message
-      this.render()
-    });
 
     // Employee Id
     this.context.msGraphClientFactory
@@ -168,36 +108,6 @@ export default class GetListWebPart extends BaseClientSideWebPart<IGetListWebPar
       this.render()
     });
 
-    // //Get Data from List
-    // const siteUrl = 'https://wqcmg.sharepoint.com/sites/JoTest';
-    // const listTitle = 'ProfileCardsData';
-
-    // // Step 1: Get the current user’s ID
-    // fetch(`${siteUrl}/_api/web/currentuser`, {
-    //     method: 'GET',
-    //     headers: {
-    //         'Accept': 'application/json;odata=verbose'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(userData => {
-    //     const userId = userData.d.Id;
-
-    //     // Step 2: Query the SharePoint list using the logged-in user's ID
-    //     const queryUrl = `${siteUrl}/_api/web/lists/getbytitle('${listTitle}')/items?$filter=User/Id eq ${userId}`;
-
-    //     return fetch(queryUrl, {
-    //         method: 'GET',
-    //         headers: {
-    //             'Accept': 'application/json;odata=verbose'
-    //         }
-    //     });
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log(data.d.results); // Process the filtered data here
-    // })
-    // .catch(error => console.error('Error:', error));
   }
 
 
